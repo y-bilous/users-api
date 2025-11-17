@@ -1,0 +1,190 @@
+nelmio_api_doc:
+  documentation:
+    openapi: 3.0.0
+    info:
+      title: "Users API"
+      description: "API documentation for Users service"
+      version: "1.0.0"
+    security:
+      - BearerAuth: []
+    components:
+      securitySchemes:
+        BearerAuth:
+          type: http
+          scheme: bearer
+          bearerFormat: JWT
+      schemas:
+        UserResponse:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            login:
+              type: string
+              example: "root"
+            phone:
+              type: string
+              example: "+380991111111"
+        UserListResponse:
+          type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/UserResponse'
+              example:
+                - id: 1
+                  login: "root"
+                  phone: "+380991111111"
+                - id: 2
+                  login: "user1"
+                  phone: "+380992222222"
+        UserRequest:
+          type: object
+          required: [login, phone, pass]
+          properties:
+            login:
+              type: string
+              maxLength: 32
+              example: "john_doe"
+            phone:
+              type: string
+              maxLength: 15
+              example: "+380991234567"
+            pass:
+              type: string
+              minLength: 8
+              example: "secretPass123"
+        ValidationErrorResponse:
+          type: object
+          properties:
+            status:
+              type: string
+              example: "Bad Request"
+            code:
+              type: integer
+              example: 400
+            errors:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                    example: "login"
+                  message:
+                    type: string
+                    example: "This login is already taken."
+    paths:
+      /v1/api/users:
+        get:
+          summary: Get list of users
+          security:
+            - BearerAuth: []
+          responses:
+            '200':
+              description: List of users
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/UserListResponse'
+        post:
+          summary: Create new user
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/UserRequest'
+                example:
+                  login: "root"
+                  phone: "+380991111111"
+                  pass: "secretPass123"
+          responses:
+            '201':
+              description: User created
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/UserResponse'
+            '400':
+              description: Validation error
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/ValidationErrorResponse'
+      /v1/api/users/{id}:
+        get:
+          summary: Get user by ID
+          parameters:
+            - name: id
+              in: path
+              description: User ID
+              required: true
+              schema:
+                type: integer
+                example: 1
+          responses:
+            '200':
+              description: User data
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/UserResponse'
+            '404':
+              description: User not found
+        put:
+          summary: Update user
+          parameters:
+            - name: id
+              in: path
+              description: User ID
+              required: true
+              schema:
+                type: integer
+                example: 1
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/UserRequest'
+                example:
+                  login: "updated_login"
+                  phone: "+380991234567"
+                  pass: "newSecretPass123"
+          responses:
+            '200':
+              description: User updated
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/UserResponse'
+            '400':
+              description: Validation error
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/ValidationErrorResponse'
+            '404':
+              description: User not found
+        delete:
+          summary: Delete user
+          parameters:
+            - name: id
+              in: path
+              description: User ID
+              required: true
+              schema:
+                type: integer
+                example: 1
+          responses:
+            '204':
+              description: User deleted (No Content)
+              content: {}
+            '404':
+              description: User not found
+  areas:
+    path_patterns:
+      - ^/v1/api
