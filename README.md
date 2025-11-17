@@ -54,7 +54,7 @@ Read the API documentation on http://127.0.0.1:8000/api/doc
 
 ## Expected Results
 
-| Request | Root | User1 |
+| Request | Root Role | User Role |
 |---------|------|-------|
 | `GET /v1/api/users` | ✅ sees everyone | ⚠️ sees only themselves |
 | `GET /v1/api/users/{id}` | ✅ any user | ✅ only their own id |
